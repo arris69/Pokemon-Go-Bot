@@ -24,33 +24,19 @@ namespace PokemonGo.RocketAPI
         private string _apiUrl;
         private AuthType _authType = AuthType.Google;
         private Request.Types.UnknownAuth _unknownAuth;
+        Random rand = null;
 
         public Client(ISettings settings)
         {
             Settings = settings;
-            if (File.Exists(Directory.GetCurrentDirectory() + "\\Coords.txt") &&
-                File.ReadAllText(Directory.GetCurrentDirectory() + "\\Coords.txt").Contains(":"))
+
+            DirectoryInfo di = Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\Configs");
+
+            Tuple<double, double> latLngFromFile = GetLatLngFromFile();
+
+            if (latLngFromFile != null)
             {
-                var latlngFromFile = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Coords.txt");
-                var latlng = latlngFromFile.Split(':');
-                if (latlng[0].Length != 0 && latlng[1].Length != 0 && latlng[0] != "NaN" && latlng[1] != "NaN")
-                {
-                    try
-                    {
-                        SetCoordinates(Convert.ToDouble(latlng[0]), Convert.ToDouble(latlng[1]),
-                            Settings.DefaultAltitude);
-                    }
-                    catch (FormatException)
-                    {
-                        Logger.Write("Coordinates in \"Coords.txt\" file is invalid, using the default coordinates ",
-                            LogLevel.Warning);
-                        SetCoordinates(Settings.DefaultLatitude, Settings.DefaultLongitude, Settings.DefaultAltitude);
-                    }
-                }
-                else
-                {
-                    SetCoordinates(Settings.DefaultLatitude, Settings.DefaultLongitude, Settings.DefaultAltitude);
-                }
+                SetCoordinates(latLngFromFile.Item1, latLngFromFile.Item2, Settings.DefaultAltitude);
             }
             else
             {
@@ -71,6 +57,48 @@ namespace PokemonGo.RocketAPI
             _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "*/*");
             _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type",
                 "application/x-www-form-urlencoded");
+        }
+
+        /// <summary>
+        /// Gets the lat LNG from file.
+        /// </summary>
+        /// <returns>Tuple&lt;System.Double, System.Double&gt;.</returns>
+        public static Tuple<double, double> GetLatLngFromFile()
+        {
+            if (File.Exists(Directory.GetCurrentDirectory() + "\\Configs\\Coords.ini") &&
+                File.ReadAllText(Directory.GetCurrentDirectory() + "\\Configs\\Coords.ini").Contains(":"))
+            {
+                var latlngFromFile = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Configs\\Coords.ini");
+                var latlng = latlngFromFile.Split(':');
+                if (latlng[0].Length != 0 && latlng[1].Length != 0)
+                {
+                    try
+                    {
+                        double temp_lat = Convert.ToDouble(latlng[0]);
+                        double temp_long = Convert.ToDouble(latlng[1]);
+
+                        if (temp_lat >= -90 && temp_lat <= 90 && temp_long >= -180 && temp_long <= 180)
+                        {
+                            return new Tuple<double, double>(temp_lat, temp_long);
+                        }
+                        else
+                        {
+                            Logger.Write("Coordinates in \"Coords.ini\" file are invalid, using the default coordinates ",
+                            LogLevel.Warning);
+                            return null;
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Logger.Write("Coordinates in \"Coords.ini\" file are invalid, using the default coordinates ",
+                            LogLevel.Warning);
+                        return null;
+                    }
+                }
+
+            }
+
+            return null;
         }
 
         public ISettings Settings { get; }
@@ -110,10 +138,16 @@ namespace PokemonGo.RocketAPI
         {
             _authType = AuthType.Google;
 
-            GoogleLogin.TokenResponseModel tokenResponse;
-            if (Settings.GoogleRefreshToken != string.Empty)
+            string googleRefreshToken = string.Empty;
+            if (File.Exists(Directory.GetCurrentDirectory() + "\\Configs\\GoogleAuth.ini"))
             {
-                tokenResponse = await GoogleLogin.GetAccessToken(Settings.GoogleRefreshToken);
+                googleRefreshToken = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Configs\\GoogleAuth.ini");
+            }
+
+            GoogleLogin.TokenResponseModel tokenResponse;
+            if (googleRefreshToken != string.Empty)
+            {
+                tokenResponse = await GoogleLogin.GetAccessToken(googleRefreshToken);
                 AccessToken = tokenResponse?.id_token;
             }
 
@@ -121,7 +155,8 @@ namespace PokemonGo.RocketAPI
             {
                 var deviceCode = await GoogleLogin.GetDeviceCode();
                 tokenResponse = await GoogleLogin.GetAccessToken(deviceCode);
-                Settings.GoogleRefreshToken = tokenResponse?.refresh_token;
+                googleRefreshToken = tokenResponse?.refresh_token;
+                File.WriteAllText(Directory.GetCurrentDirectory() + "\\Configs\\GoogleAuth.ini", googleRefreshToken);
                 Logger.Write("Refreshtoken " + tokenResponse?.refresh_token + " saved");
                 AccessToken = tokenResponse?.id_token;
             }
@@ -298,7 +333,8 @@ namespace PokemonGo.RocketAPI
         public void SaveLatLng(double lat, double lng)
         {
             var latlng = lat + ":" + lng;
-            File.WriteAllText(Directory.GetCurrentDirectory() + "\\Coords.txt", latlng);
+            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\Configs");
+            File.WriteAllText(Directory.GetCurrentDirectory() + "\\Configs\\Coords.ini", latlng);
         }
 
         public async Task<FortSearchResponse> SearchFort(string fortId, double fortLat, double fortLng)
@@ -333,13 +369,42 @@ namespace PokemonGo.RocketAPI
             _authType = type;
         }
 
+        private void CalcNoisedCoordinates(double lat, double lng, out double latNoise, out double lngNoise)
+        {
+            double mean = 0.0;// just for fun
+            double stdDev = 2.09513120352; //-> so 50% of the noised coordinates will have a maximal distance of 4 m to orginal ones
+
+            if (rand == null)
+            {
+                rand = new Random();
+            }
+            double u1 = rand.NextDouble();
+            double u2 = rand.NextDouble();
+            double u3 = rand.NextDouble();
+            double u4 = rand.NextDouble();
+
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+            double randNormal = mean + stdDev * randStdNormal;
+            double randStdNormal2 = Math.Sqrt(-2.0 * Math.Log(u3)) * Math.Sin(2.0 * Math.PI * u4);
+            double randNormal2 = mean + stdDev * randStdNormal2;
+
+            latNoise = lat + randNormal / 100000.0;
+            lngNoise = lng + randNormal2 / 100000.0;
+        }
+
         private void SetCoordinates(double lat, double lng, double altitude)
         {
-            CurrentLat = lat;
-            CurrentLng = lng;
+            if (double.IsNaN(lat) || double.IsNaN(lng)) return;
+
+            double latNoised = 0.0;
+            double lngNoised = 0.0;
+            CalcNoisedCoordinates(lat, lng, out latNoised, out lngNoised);
+            CurrentLat = latNoised;
+            CurrentLng = lngNoised;
             CurrentAltitude = altitude;
             SaveLatLng(lat, lng);
         }
+
 
         public async Task SetServer()
         {
@@ -420,6 +485,25 @@ namespace PokemonGo.RocketAPI
             return
                 await
                     _httpClient.PostProtoPayload<Request, UseItemCaptureRequest>($"https://{_apiUrl}/rpc",
+                        useItemRequest);
+        }
+
+        public async Task<UseItemRequest> UseItemXpBoost(ItemId itemId) //changed from UseItem to UseItemXpBoost because of the RequestType
+        {
+            var customRequest = new UseItemRequest
+            {
+                ItemId = itemId,
+            };
+
+            var useItemRequest = RequestBuilder.GetRequest(_unknownAuth, CurrentLat, CurrentLng, CurrentAltitude,
+                new Request.Types.Requests
+                {
+                    Type = (int)RequestType.USE_ITEM_XP_BOOST,
+                    Message = customRequest.ToByteString()
+                });
+            return
+                await
+                    _httpClient.PostProtoPayload<Request, UseItemRequest>($"https://{_apiUrl}/rpc",
                         useItemRequest);
         }
     }

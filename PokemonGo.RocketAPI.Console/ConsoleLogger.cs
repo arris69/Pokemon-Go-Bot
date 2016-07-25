@@ -1,6 +1,7 @@
-﻿#region
+﻿#region using directives
 
 using System;
+using System.Text;
 using PokemonGo.RocketAPI.Logging;
 
 #endregion
@@ -32,6 +33,8 @@ namespace PokemonGo.RocketAPI.Console
         /// <param name="color">Optional. Default is auotmatic</param>
         public void Write(string message, LogLevel level = LogLevel.Info, ConsoleColor color = ConsoleColor.Black)
         {
+            //Remember to change to a font that supports your language, otherwise it'll still show as ???
+            System.Console.OutputEncoding = Encoding.Unicode;
             if (level > _maxLogLevel)
                 return;
 
@@ -42,8 +45,8 @@ namespace PokemonGo.RocketAPI.Console
                     System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (ERROR) {message}");
                     break;
                 case LogLevel.Warning:
-                    System.Console.ForegroundColor = ConsoleColor.DarkRed;
-                    System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (WARNING) {message}");
+                    System.Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (ATTENTION) {message}");
                     break;
                 case LogLevel.Info:
                     System.Console.ForegroundColor = ConsoleColor.DarkCyan;
@@ -63,7 +66,7 @@ namespace PokemonGo.RocketAPI.Console
                     break;
                 case LogLevel.Caught:
                     System.Console.ForegroundColor = ConsoleColor.Green;
-                    System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (CAUGHT) {message}");
+                    System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (PKMN) {message}");
                     break;
                 case LogLevel.Transfer:
                     System.Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -74,8 +77,12 @@ namespace PokemonGo.RocketAPI.Console
                     System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (EVOLVED) {message}");
                     break;
                 case LogLevel.Berry:
-                    System.Console.ForegroundColor = ConsoleColor.Magenta;
+                    System.Console.ForegroundColor = ConsoleColor.DarkYellow;
                     System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (BERRY) {message}");
+                    break;
+                case LogLevel.Egg:
+                    System.Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    System.Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss")}] (EGG) {message}");
                     break;
                 case LogLevel.Debug:
                     System.Console.ForegroundColor = ConsoleColor.Gray;

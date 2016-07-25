@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Globalization;
 using System.IO;
 using PokemonGo.RocketAPI.Logging;
 
@@ -15,7 +16,6 @@ namespace PokemonGo.RocketAPI
     public static class Logger
     {
         private static ILogger _logger;
-
         /// <summary>
         ///     Set the logger. All future requests to <see cref="Write(string,LogLevel,ConsoleColor)" /> will use that logger, any
         ///     old will be
@@ -45,7 +45,10 @@ namespace PokemonGo.RocketAPI
         private static void Log(string message)
         {
             // maybe do a new log rather than appending?
-            using (var log = File.AppendText("log.txt"))
+            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\Logs");
+
+         
+            using (var log = File.AppendText(Directory.GetCurrentDirectory() + $"\\Logs\\NecroBot-{DateTime.Today.ToString("yyyy-MM-dd")}-{DateTime.Now.ToString("HH")}.txt"))
             {
                 log.WriteLine(message);
                 log.Flush();
@@ -65,7 +68,8 @@ namespace PokemonGo.RocketAPI
         Caught = 7,
         Transfer = 8,
         Evolve = 9,
-        Info = 10,
-        Debug = 11
+        Egg = 10,
+        Info = 11,
+        Debug = 12
     }
 }

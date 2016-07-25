@@ -1,4 +1,4 @@
-﻿#region
+﻿#region using directives
 
 using System;
 using System.Threading;
@@ -11,7 +11,7 @@ namespace PokemonGo.RocketAPI.Console
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             Logger.SetLogger(new ConsoleLogger(LogLevel.Info));
 
@@ -29,9 +29,15 @@ namespace PokemonGo.RocketAPI.Console
                     Thread.Sleep(20000);
                     new Logic.Logic(new Settings()).Execute().Wait();
                 }
+                catch (AccountNotVerifiedException)
+                {
+                    Logger.Write("Account not verified. - Exiting");
+                    Environment.Exit(0);
+                }
                 catch (Exception ex)
                 {
                     Logger.Write($"Unhandled exception: {ex}", LogLevel.Error);
+                    new Logic.Logic(new Settings()).Execute().Wait();
                 }
             });
             System.Console.ReadLine();

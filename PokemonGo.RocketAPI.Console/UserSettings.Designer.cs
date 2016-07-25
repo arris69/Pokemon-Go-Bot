@@ -61,18 +61,6 @@ namespace PokemonGo.RocketAPI.Console {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string GoogleRefreshToken {
-            get {
-                return ((string)(this["GoogleRefreshToken"]));
-            }
-            set {
-                this["GoogleRefreshToken"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("52.379189")]
         public double DefaultLatitude {
             get {
@@ -170,12 +158,12 @@ namespace PokemonGo.RocketAPI.Console {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5000")]
-        public int DelayBetweenMove {
+        public int DelayBetweenPokemonCatch {
             get {
-                return ((int)(this["DelayBetweenMove"]));
+                return ((int)(this["DelayBetweenPokemonCatch"]));
             }
             set {
-                this["DelayBetweenMove"] = value;
+                this["DelayBetweenPokemonCatch"] = value;
             }
         }
         
@@ -188,6 +176,102 @@ namespace PokemonGo.RocketAPI.Console {
             }
             set {
                 this["UsePokemonToNotCatchFilter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int KeepMinDuplicatePokemon {
+            get {
+                return ((int)(this["KeepMinDuplicatePokemon"]));
+            }
+            set {
+                this["KeepMinDuplicatePokemon"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PrioritizeIVOverCP {
+            get {
+                return ((bool)(this["PrioritizeIVOverCP"]));
+            }
+            set {
+                this["PrioritizeIVOverCP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int MaxTravelDistanceInMeters {
+            get {
+                return ((int)(this["MaxTravelDistanceInMeters"]));
+            }
+            set {
+                this["MaxTravelDistanceInMeters"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseGPXPathing {
+            get {
+                return ((bool)(this["UseGPXPathing"]));
+            }
+            set {
+                this["UseGPXPathing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("GPXFile.GPX")]
+        public string GPXFile {
+            get {
+                return ((string)(this["GPXFile"]));
+            }
+            set {
+                this["GPXFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool useLuckyEggsWhileEvolving {
+            get {
+                return ((bool)(this["useLuckyEggsWhileEvolving"]));
+            }
+            set {
+                this["useLuckyEggsWhileEvolving"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EvolveAllPokemonAboveIV {
+            get {
+                return ((bool)(this["EvolveAllPokemonAboveIV"]));
+            }
+            set {
+                this["EvolveAllPokemonAboveIV"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("95")]
+        public int EvolveAboveIVValue {
+            get {
+                return ((int)(this["EvolveAboveIVValue"]));
+            }
+            set {
+                this["EvolveAboveIVValue"] = value;
             }
         }
     }
